@@ -79,6 +79,40 @@ val unpackTask = tasks.register<Copy>("unpackSdk") {
     outputs.file(markerFile)
 }
 
+// Trigger if you want to try wayland
+val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") {
+    dependsOn(unpackTask)
+
+    val outputDir = libDestination.dir("rgfw").asFile
+    val markerFile = libDestination.file("wayland-protocols.completed").asFile
+
+    doFirst {
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+    }
+
+    workingDir(outputDir)
+
+    // Generate all required Wayland protocol headers and compile them
+    commandLine("sh", "-c", """
+        wayland-scanner client-header /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml xdg-shell.h &&
+        wayland-scanner private-code /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml xdg-shell.c &&
+        wayland-scanner client-header /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml xdg-decoration-unstable-v1.h &&
+        wayland-scanner private-code /usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml xdg-decoration-unstable-v1.c &&
+        gcc -c -fPIC xdg-shell.c -o xdg-shell.o $(pkg-config --cflags wayland-client) &&
+        gcc -c -fPIC xdg-decoration-unstable-v1.c -o xdg-decoration-unstable-v1.o $(pkg-config --cflags wayland-client) &&
+        ar rcs libwayland-protocols.a xdg-shell.o xdg-decoration-unstable-v1.o
+    """.trimIndent())
+
+    doLast {
+        markerFile.writeText("generated ${Date()}")
+    }
+
+    outputs.file(markerFile)
+    outputs.upToDateWhen { markerFile.exists() }
+}
+
 tasks.matching { it.name.startsWith("cinteropRgfw") }.configureEach {
     dependsOn(unpackTask)
 }

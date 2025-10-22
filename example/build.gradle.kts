@@ -11,7 +11,8 @@ kotlin {
         binaries {
             executable {
                 entryPoint = "main"
-                linkerOpts("-L/usr/lib", "-L/usr/lib/x86_64-linux-gnu")
+                linkerOpts("-L/usr/lib", "-L/usr/lib/x86_64-linux-gnu", "-lc")
+                freeCompilerArgs += listOf("-linker-option", "--allow-shlib-undefined")
             }
         }
     }

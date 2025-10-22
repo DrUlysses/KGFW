@@ -3,8 +3,11 @@ headers = RGFW.h
 
 compilerOpts = -Ibuild/interopLib/rgfw -DRGFW_IMPLEMENTATION
 
-compilerOpts.linux = -I/usr/include -I/usr/include/X11
+compilerOpts.linux = -I/usr/include -I/usr/include/X11 -DRGFW_WAYLAND_X11
 
-linkerOpts.linux = -lm -lX11 -lXrandr -lGL
+staticLibraries = libwayland-protocols.a
+libraryPaths = build/interopLib/rgfw
+
+linkerOpts.linux = -lm -lX11 -lXrandr -lGL -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon -lEGL
 linkerOpts.mingw = -lopengl32 -lgdi32
 linkerOpts.osx = -framework Cocoa -framework OpenGL
