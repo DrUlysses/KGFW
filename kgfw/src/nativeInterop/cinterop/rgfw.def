@@ -1,10 +1,10 @@
 package = rgfw
 headers = RGFW.h
 
-compilerOpts = -Ibuild/interopLib/rgfw
+compilerOpts = -Ibuild/interopLib/rgfw -DRGFW_IMPLEMENTATION
 
 compilerOpts.linux = -I/usr/include -I/usr/include/X11
 
-linkerOpts.linux = -lm -lX11 -lXrandr
+linkerOpts.linux = -lm -lX11 -lXrandr -lGL
 linkerOpts.mingw = -lopengl32 -lgdi32
 linkerOpts.osx = -framework Cocoa -framework OpenGL
