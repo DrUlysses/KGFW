@@ -11,6 +11,7 @@ kotlin {
         binaries {
             executable {
                 entryPoint = "main"
+                linkerOpts("-L/usr/lib", "-L/usr/lib/x86_64-linux-gnu")
             }
         }
     }
