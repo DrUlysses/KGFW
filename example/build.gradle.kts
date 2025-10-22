@@ -20,4 +20,10 @@ kotlin {
     dependencies {
         implementation(project(":kgfw"))
     }
+
+    sourceSets.all {
+        languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        languageSettings.optIn("kotlinx.cinterop.UnsafeNumber")
+        languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+    }
 }

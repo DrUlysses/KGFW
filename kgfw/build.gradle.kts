@@ -114,7 +114,7 @@ val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") 
 }
 
 tasks.matching { it.name.startsWith("cinteropRgfw") }.configureEach {
-    dependsOn(unpackTask)
+    dependsOn(generateWaylandProtocols)
 }
 
 publishing {
