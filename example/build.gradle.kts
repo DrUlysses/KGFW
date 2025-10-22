@@ -24,6 +24,7 @@ kotlin {
     sourceSets.all {
         languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         languageSettings.optIn("kotlinx.cinterop.UnsafeNumber")
+        languageSettings.optIn("kotlin.time.ExperimentalTime")
         languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
     }
 }
