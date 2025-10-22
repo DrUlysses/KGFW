@@ -31,32 +31,29 @@ fun window(
 
             when (event.pointed.type.toUInt()) {
                 RGFW_keyPressed -> {
-                    onEvent(Event.KeyPressed(
-                        button = event.pointed.key.toUInt().toButton(),
-                    ))
+                    onEvent(
+                        Event.KeyPressed(
+                            button = event.pointed.key.toUInt().toButton(),
+                        )
+                    )
                 }
                 RGFW_keyReleased -> {
-                    onEvent(Event.KeyReleased(
-                        button = event.pointed.key.toUInt().toButton(),
-                    ))
-                }
-                RGFW_quit -> {
-                    onEvent(Event.Quit)
-                    RGFW_window_close(windowPointer)
-                    return@memScoped
+                    onEvent(
+                        Event.KeyReleased(
+                            button = event.pointed.key.toUInt().toButton(),
+                        )
+                    )
                 }
                 RGFW_mouseButtonPressed -> {
                     val mousePoint = RGFW_window_getMousePoint(windowPointer)
                         .getPointer(this@memScoped)
                         .pointed
 
-                    val mouseButton = event.pointed.button.toUInt().toButton()
-
                     onEvent(
                         Event.MouseButtonPressed(
                             x = mousePoint.x,
                             y = mousePoint.y,
-                            button = mouseButton,
+                            button = event.pointed.button.toUInt().toButton(),
                         )
                     )
                 }
@@ -65,15 +62,137 @@ fun window(
                         .getPointer(this@memScoped)
                         .pointed
 
-                    val mouseButton = event.pointed.button.toUInt().toButton()
-
                     onEvent(
                         Event.MouseButtonReleased(
                             x = mousePoint.x,
                             y = mousePoint.y,
-                            button = mouseButton,
+                            button = event.pointed.button.toUInt().toButton(),
                         )
                     )
+                }
+
+                RGFW_mousePosChanged -> {
+                    val mousePoint = RGFW_window_getMousePoint(windowPointer)
+                        .getPointer(this@memScoped)
+                        .pointed
+
+                    onEvent(
+                        Event.MousePosChanged(
+                            x = mousePoint.x,
+                            y = mousePoint.y,
+                        )
+                    )
+                }
+
+                RGFW_gamepadConnected -> {
+                    onEvent(
+                        Event.GamepadConnected(
+                            gamepad = event.pointed.gamepad.toInt()
+                        )
+                    )
+                }
+
+                RGFW_gamepadDisconnected -> {
+                    onEvent(
+                        Event.GamepadDisconnected(
+                            gamepad = event.pointed.gamepad.toInt()
+                        )
+                    )
+                }
+
+                RGFW_gamepadButtonPressed -> {
+                    onEvent(
+                        Event.GamepadButtonPressed(
+                            gamepad = event.pointed.gamepad.toInt(),
+                            button = event.pointed.button.toUInt().toButton()
+                        )
+                    )
+                }
+
+                RGFW_gamepadButtonReleased -> {
+                    onEvent(
+                        Event.GamepadButtonReleased(
+                            gamepad = event.pointed.gamepad.toInt(),
+                            button = event.pointed.button.toUInt().toButton()
+                        )
+                    )
+                }
+
+                RGFW_gamepadAxisMove -> {
+                    onEvent(
+                        Event.GamepadAxisMove(
+                            gamepad = event.pointed.gamepad.toInt(),
+                            whichAxis = event.pointed.whichAxis.toInt(),
+                            axesCount = event.pointed.axisesCount.toInt()
+                        )
+                    )
+                }
+
+                RGFW_windowMoved -> {
+                    onEvent(Event.WindowMoved)
+                }
+
+                RGFW_windowResized -> {
+                    onEvent(Event.WindowResized)
+                }
+
+                RGFW_focusIn -> {
+                    onEvent(Event.FocusIn)
+                }
+
+                RGFW_focusOut -> {
+                    onEvent(Event.FocusOut)
+                }
+
+                RGFW_mouseEnter -> {
+                    onEvent(Event.MouseEnter)
+                }
+
+                RGFW_mouseLeave -> {
+                    onEvent(Event.MouseLeave)
+                }
+
+                RGFW_windowRefresh -> {
+                    onEvent(Event.WindowRefresh)
+                }
+
+                RGFW_DNDInit -> {
+                    val p = event.pointed.point
+                    onEvent(Event.DNDInit(x = p.x, y = p.y))
+                }
+
+                RGFW_DND -> {
+                    val p = event.pointed.point
+                    // NOTE: Dropped files list (char**) interop can be added later if needed.
+                    // For now, emit event with position and an empty file list.
+                    onEvent(Event.DND(x = p.x, y = p.y, files = emptyList()))
+                }
+
+                RGFW_windowMaximized -> {
+                    onEvent(Event.WindowMaximized)
+                }
+
+                RGFW_windowMinimized -> {
+                    onEvent(Event.WindowMinimized)
+                }
+
+                RGFW_windowRestored -> {
+                    onEvent(Event.WindowRestored)
+                }
+
+                RGFW_scaleUpdated -> {
+                    onEvent(
+                        Event.ScaleUpdated(
+                            scaleX = event.pointed.scaleX,
+                            scaleY = event.pointed.scaleY
+                        )
+                    )
+                }
+
+                RGFW_quit -> {
+                    onEvent(Event.Quit)
+                    RGFW_window_close(windowPointer)
+                    return@memScoped
                 }
             }
         }
@@ -182,5 +301,25 @@ private fun UInt.toButton(): Button = when (this) {
     RGFW_mouseMisc4 -> Button.MouseMisc4
     RGFW_mouseMisc5 -> Button.MouseMisc5
     RGFW_mouseFinal -> Button.MouseFinal
+    // Gamepad buttons
+    RGFW_gamepadNone -> Button.GamepadNone
+    RGFW_gamepadA -> Button.GamepadA
+    RGFW_gamepadB -> Button.GamepadB
+    RGFW_gamepadY -> Button.GamepadY
+    RGFW_gamepadX -> Button.GamepadX
+    RGFW_gamepadStart -> Button.GamepadStart
+    RGFW_gamepadSelect -> Button.GamepadSelect
+    RGFW_gamepadHome -> Button.GamepadHome
+    RGFW_gamepadUp -> Button.GamepadUp
+    RGFW_gamepadDown -> Button.GamepadDown
+    RGFW_gamepadLeft -> Button.GamepadLeft
+    RGFW_gamepadRight -> Button.GamepadRight
+    RGFW_gamepadL1 -> Button.GamepadL1
+    RGFW_gamepadL2 -> Button.GamepadL2
+    RGFW_gamepadR1 -> Button.GamepadR1
+    RGFW_gamepadR2 -> Button.GamepadR2
+    RGFW_gamepadL3 -> Button.GamepadL3
+    RGFW_gamepadR3 -> Button.GamepadR3
+    RGFW_gamepadFinal -> Button.GamepadFinal
     else -> Button.Unknown
 }

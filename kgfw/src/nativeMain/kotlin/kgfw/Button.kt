@@ -55,7 +55,11 @@ enum class Button {
     Apostrophe,
     BackSlash,
     Return,
-    Delete, /* 127 */
+
+    /**
+     * 127
+     */
+    Delete,
     F1,
     F2,
     F3,
@@ -88,7 +92,11 @@ enum class Button {
     PageDown,
     NumLock,
     ScrollLock,
-    KeyLast, /* padding for alignment ~(175 by default) */
+
+    /**
+     * padding for alignment ~(175 by default)
+     */
+    KeyLast,
     // Mouse
     MouseLeft,
     MouseRight,
@@ -99,6 +107,95 @@ enum class Button {
     MouseMisc4,
     MouseMisc5,
     MouseFinal,
+
+    // Gamepad
+    GamepadNone,
+
+    /**
+     * !< or PS X button
+     */
+    GamepadA,
+
+    /**
+     * !< or PS circle button
+     */
+    GamepadB,
+
+    /**
+     * !< or PS triangle button
+     */
+    GamepadY,
+
+    /**
+     * !< or PS square button
+     */
+    GamepadX,
+
+    /**
+     * !< start button
+     */
+    GamepadStart,
+
+    /**
+     * !< select button
+     */
+    GamepadSelect,
+
+    /**
+     * !< home button
+     */
+    GamepadHome,
+
+    /**
+     * !< dpad up
+     */
+    GamepadUp,
+
+    /**
+     * !< dpad down
+     */
+    GamepadDown,
+
+    /**
+     * !< dpad left
+     */
+    GamepadLeft,
+
+    /**
+     * !< dpad right
+     */
+    GamepadRight,
+
+    /**
+     * !< left bump
+     */
+    GamepadL1,
+
+    /**
+     * !< left trigger
+     */
+    GamepadL2,
+
+    /**
+     * !< right bumper
+     */
+    GamepadR1,
+
+    /**
+     * !< right trigger
+     */
+    GamepadR2,
+
+    /**
+     * left thumb stick
+     */
+    GamepadL3,
+
+    /**
+     * !< right thumb stick
+     */
+    GamepadR3,
+    GamepadFinal,
     // Other
     Unknown,
 }

@@ -1,4 +1,5 @@
-import kgfw.*
+import kgfw.Event
+import kgfw.window
 import rgfw.*
 import kotlin.time.Clock
 
@@ -20,13 +21,16 @@ fun main() {
                 }
 
                 is Event.MouseButtonPressed -> {
-                    mouseX = event.x
-                    mouseY = event.y
                     println("Mouse ${event.button} pressed at (${event.x}, ${event.y})")
                 }
 
                 is Event.MouseButtonReleased -> {
                     println("Mouse ${event.button} released at (${event.x}, ${event.y})")
+                }
+
+                is Event.MousePosChanged -> {
+                    mouseX = event.x
+                    mouseY = event.y
                 }
 
                 is Event.KeyPressed -> {
@@ -36,6 +40,8 @@ fun main() {
                 is Event.KeyReleased -> {
                     println("Key ${event.button} released")
                 }
+
+                else -> {}
             }
         }
     ) {
