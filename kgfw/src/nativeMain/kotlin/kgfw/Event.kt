@@ -1,13 +1,17 @@
 package kgfw
 
+import kgfw.buttons.Gamepad
+import kgfw.buttons.Keyboard
+import kgfw.buttons.Mouse
+
 sealed interface Event {
     // Keyboard
-    data class KeyPressed(val button: Button) : Event
-    data class KeyReleased(val button: Button) : Event
+    data class KeyPressed(val button: Keyboard) : Event
+    data class KeyReleased(val button: Keyboard) : Event
 
     // Mouse
-    data class MouseButtonPressed(val x: Int, val y: Int, val button: Button) : Event
-    data class MouseButtonReleased(val x: Int, val y: Int, val button: Button) : Event
+    data class MouseButtonPressed(val x: Int, val y: Int, val button: Mouse) : Event
+    data class MouseButtonReleased(val x: Int, val y: Int, val button: Mouse) : Event
     data class MousePosChanged(val x: Int, val y: Int) : Event
     data object MouseEnter : Event
     data object MouseLeave : Event
@@ -26,8 +30,8 @@ sealed interface Event {
     // Gamepad
     data class GamepadConnected(val gamepad: Int) : Event
     data class GamepadDisconnected(val gamepad: Int) : Event
-    data class GamepadButtonPressed(val gamepad: Int, val button: Button) : Event
-    data class GamepadButtonReleased(val gamepad: Int, val button: Button) : Event
+    data class GamepadButtonPressed(val gamepad: Int, val button: Gamepad) : Event
+    data class GamepadButtonReleased(val gamepad: Int, val button: Gamepad) : Event
     data class GamepadAxisMove(val gamepad: Int, val whichAxis: Int, val axesCount: Int) : Event
 
     // Drag and drop

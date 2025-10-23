@@ -1,5 +1,8 @@
 package kgfw
 
+import kgfw.buttons.Gamepad
+import kgfw.buttons.Keyboard
+import kgfw.buttons.Mouse
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.memScoped
@@ -33,14 +36,14 @@ fun window(
                 RGFW_keyPressed -> {
                     onEvent(
                         Event.KeyPressed(
-                            button = event.pointed.key.toUInt().toButton(),
+                            button = event.pointed.key.toUInt().toKeyboard(),
                         )
                     )
                 }
                 RGFW_keyReleased -> {
                     onEvent(
                         Event.KeyReleased(
-                            button = event.pointed.key.toUInt().toButton(),
+                            button = event.pointed.key.toUInt().toKeyboard(),
                         )
                     )
                 }
@@ -53,7 +56,7 @@ fun window(
                         Event.MouseButtonPressed(
                             x = mousePoint.x,
                             y = mousePoint.y,
-                            button = event.pointed.button.toUInt().toButton(),
+                            button = event.pointed.button.toUInt().toMouse(),
                         )
                     )
                 }
@@ -66,7 +69,7 @@ fun window(
                         Event.MouseButtonReleased(
                             x = mousePoint.x,
                             y = mousePoint.y,
-                            button = event.pointed.button.toUInt().toButton(),
+                            button = event.pointed.button.toUInt().toMouse(),
                         )
                     )
                 }
@@ -104,7 +107,7 @@ fun window(
                     onEvent(
                         Event.GamepadButtonPressed(
                             gamepad = event.pointed.gamepad.toInt(),
-                            button = event.pointed.button.toUInt().toButton()
+                            button = event.pointed.button.toUInt().toGamepad()
                         )
                     )
                 }
@@ -113,7 +116,7 @@ fun window(
                     onEvent(
                         Event.GamepadButtonReleased(
                             gamepad = event.pointed.gamepad.toInt(),
-                            button = event.pointed.button.toUInt().toButton()
+                            button = event.pointed.button.toUInt().toGamepad()
                         )
                     )
                 }
@@ -164,7 +167,7 @@ fun window(
                 RGFW_DND -> {
                     val p = event.pointed.point
                     // NOTE: Dropped files list (char**) interop can be added later if needed.
-                    // For now, emit event with position and an empty file list.
+                    // For now, emit the event with a position and an empty file list.
                     onEvent(Event.DND(x = p.x, y = p.y, files = emptyList()))
                 }
 
@@ -202,124 +205,129 @@ fun window(
     RGFW_window_close(windowPointer)
 }
 
-private fun UInt.toButton(): Button = when (this) {
-    // Keyboard buttons
-    RGFW_keyNULL -> Button.KeyNULL
-    RGFW_escape -> Button.Escape
-    RGFW_backtick -> Button.Backtick
-    RGFW_0 -> Button.Zero
-    RGFW_1 -> Button.One
-    RGFW_2 -> Button.Two
-    RGFW_3 -> Button.Three
-    RGFW_4 -> Button.Four
-    RGFW_5 -> Button.Five
-    RGFW_6 -> Button.Six
-    RGFW_7 -> Button.Seven
-    RGFW_8 -> Button.Eight
-    RGFW_9 -> Button.Nine
-    RGFW_minus -> Button.Minus
-    RGFW_equals -> Button.Equals
-    RGFW_backSpace -> Button.BackSpace
-    RGFW_tab -> Button.Tab
-    RGFW_space -> Button.Space
-    RGFW_a -> Button.A
-    RGFW_b -> Button.B
-    RGFW_c -> Button.C
-    RGFW_d -> Button.D
-    RGFW_e -> Button.E
-    RGFW_f -> Button.F
-    RGFW_g -> Button.G
-    RGFW_h -> Button.H
-    RGFW_i -> Button.I
-    RGFW_j -> Button.J
-    RGFW_k -> Button.K
-    RGFW_l -> Button.L
-    RGFW_m -> Button.M
-    RGFW_n -> Button.N
-    RGFW_o -> Button.O
-    RGFW_p -> Button.P
-    RGFW_q -> Button.Q
-    RGFW_r -> Button.R
-    RGFW_s -> Button.S
-    RGFW_t -> Button.T
-    RGFW_u -> Button.U
-    RGFW_v -> Button.V
-    RGFW_w -> Button.W
-    RGFW_x -> Button.X
-    RGFW_y -> Button.Y
-    RGFW_z -> Button.Z
-    RGFW_period -> Button.Period
-    RGFW_comma -> Button.Comma
-    RGFW_slash -> Button.Slash
-    RGFW_bracket -> Button.Bracket
-    RGFW_closeBracket -> Button.CloseBracket
-    RGFW_semicolon -> Button.Semicolon
-    RGFW_apostrophe -> Button.Apostrophe
-    RGFW_backSlash -> Button.BackSlash
-    RGFW_return -> Button.Return
-    RGFW_delete -> Button.Delete
-    RGFW_F1 -> Button.F1
-    RGFW_F2 -> Button.F2
-    RGFW_F3 -> Button.F3
-    RGFW_F4 -> Button.F4
-    RGFW_F5 -> Button.F5
-    RGFW_F6 -> Button.F6
-    RGFW_F7 -> Button.F7
-    RGFW_F8 -> Button.F8
-    RGFW_F9 -> Button.F9
-    RGFW_F10 -> Button.F10
-    RGFW_F11 -> Button.F11
-    RGFW_F12 -> Button.F12
-    RGFW_capsLock -> Button.CapsLock
-    RGFW_shiftL -> Button.ShiftL
-    RGFW_controlL -> Button.ControlL
-    RGFW_altL -> Button.AltL
-    RGFW_superL -> Button.SuperL
-    RGFW_shiftR -> Button.ShiftR
-    RGFW_controlR -> Button.ControlR
-    RGFW_altR -> Button.AltR
-    RGFW_superR -> Button.SuperR
-    RGFW_up -> Button.Up
-    RGFW_down -> Button.Down
-    RGFW_left -> Button.Left
-    RGFW_right -> Button.Right
-    RGFW_insert -> Button.Insert
-    RGFW_end -> Button.End
-    RGFW_home -> Button.Home
-    RGFW_pageUp -> Button.PageUp
-    RGFW_pageDown -> Button.PageDown
-    RGFW_numLock -> Button.NumLock
-    RGFW_scrollLock -> Button.ScrollLock
-    RGFW_keyLast -> Button.KeyLast
-    // Mouse buttons
-    RGFW_mouseLeft -> Button.MouseLeft
-    RGFW_mouseRight -> Button.MouseRight
-    RGFW_mouseMiddle -> Button.MouseMiddle
-    RGFW_mouseMisc1 -> Button.MouseMisc1
-    RGFW_mouseMisc2 -> Button.MouseMisc2
-    RGFW_mouseMisc3 -> Button.MouseMisc3
-    RGFW_mouseMisc4 -> Button.MouseMisc4
-    RGFW_mouseMisc5 -> Button.MouseMisc5
-    RGFW_mouseFinal -> Button.MouseFinal
-    // Gamepad buttons
-    RGFW_gamepadNone -> Button.GamepadNone
-    RGFW_gamepadA -> Button.GamepadA
-    RGFW_gamepadB -> Button.GamepadB
-    RGFW_gamepadY -> Button.GamepadY
-    RGFW_gamepadX -> Button.GamepadX
-    RGFW_gamepadStart -> Button.GamepadStart
-    RGFW_gamepadSelect -> Button.GamepadSelect
-    RGFW_gamepadHome -> Button.GamepadHome
-    RGFW_gamepadUp -> Button.GamepadUp
-    RGFW_gamepadDown -> Button.GamepadDown
-    RGFW_gamepadLeft -> Button.GamepadLeft
-    RGFW_gamepadRight -> Button.GamepadRight
-    RGFW_gamepadL1 -> Button.GamepadL1
-    RGFW_gamepadL2 -> Button.GamepadL2
-    RGFW_gamepadR1 -> Button.GamepadR1
-    RGFW_gamepadR2 -> Button.GamepadR2
-    RGFW_gamepadL3 -> Button.GamepadL3
-    RGFW_gamepadR3 -> Button.GamepadR3
-    RGFW_gamepadFinal -> Button.GamepadFinal
-    else -> Button.Unknown
+private fun UInt.toKeyboard(): Keyboard = when (this) {
+    RGFW_keyNULL -> Keyboard.KeyNULL
+    RGFW_escape -> Keyboard.Escape
+    RGFW_backtick -> Keyboard.Backtick
+    RGFW_0 -> Keyboard.Zero
+    RGFW_1 -> Keyboard.One
+    RGFW_2 -> Keyboard.Two
+    RGFW_3 -> Keyboard.Three
+    RGFW_4 -> Keyboard.Four
+    RGFW_5 -> Keyboard.Five
+    RGFW_6 -> Keyboard.Six
+    RGFW_7 -> Keyboard.Seven
+    RGFW_8 -> Keyboard.Eight
+    RGFW_9 -> Keyboard.Nine
+    RGFW_minus -> Keyboard.Minus
+    RGFW_equals -> Keyboard.Equals
+    RGFW_backSpace -> Keyboard.BackSpace
+    RGFW_tab -> Keyboard.Tab
+    RGFW_space -> Keyboard.Space
+    RGFW_a -> Keyboard.A
+    RGFW_b -> Keyboard.B
+    RGFW_c -> Keyboard.C
+    RGFW_d -> Keyboard.D
+    RGFW_e -> Keyboard.E
+    RGFW_f -> Keyboard.F
+    RGFW_g -> Keyboard.G
+    RGFW_h -> Keyboard.H
+    RGFW_i -> Keyboard.I
+    RGFW_j -> Keyboard.J
+    RGFW_k -> Keyboard.K
+    RGFW_l -> Keyboard.L
+    RGFW_m -> Keyboard.M
+    RGFW_n -> Keyboard.N
+    RGFW_o -> Keyboard.O
+    RGFW_p -> Keyboard.P
+    RGFW_q -> Keyboard.Q
+    RGFW_r -> Keyboard.R
+    RGFW_s -> Keyboard.S
+    RGFW_t -> Keyboard.T
+    RGFW_u -> Keyboard.U
+    RGFW_v -> Keyboard.V
+    RGFW_w -> Keyboard.W
+    RGFW_x -> Keyboard.X
+    RGFW_y -> Keyboard.Y
+    RGFW_z -> Keyboard.Z
+    RGFW_period -> Keyboard.Period
+    RGFW_comma -> Keyboard.Comma
+    RGFW_slash -> Keyboard.Slash
+    RGFW_bracket -> Keyboard.Bracket
+    RGFW_closeBracket -> Keyboard.CloseBracket
+    RGFW_semicolon -> Keyboard.Semicolon
+    RGFW_apostrophe -> Keyboard.Apostrophe
+    RGFW_backSlash -> Keyboard.BackSlash
+    RGFW_return -> Keyboard.Return
+    RGFW_delete -> Keyboard.Delete
+    RGFW_F1 -> Keyboard.F1
+    RGFW_F2 -> Keyboard.F2
+    RGFW_F3 -> Keyboard.F3
+    RGFW_F4 -> Keyboard.F4
+    RGFW_F5 -> Keyboard.F5
+    RGFW_F6 -> Keyboard.F6
+    RGFW_F7 -> Keyboard.F7
+    RGFW_F8 -> Keyboard.F8
+    RGFW_F9 -> Keyboard.F9
+    RGFW_F10 -> Keyboard.F10
+    RGFW_F11 -> Keyboard.F11
+    RGFW_F12 -> Keyboard.F12
+    RGFW_capsLock -> Keyboard.CapsLock
+    RGFW_shiftL -> Keyboard.ShiftL
+    RGFW_controlL -> Keyboard.ControlL
+    RGFW_altL -> Keyboard.AltL
+    RGFW_superL -> Keyboard.SuperL
+    RGFW_shiftR -> Keyboard.ShiftR
+    RGFW_controlR -> Keyboard.ControlR
+    RGFW_altR -> Keyboard.AltR
+    RGFW_superR -> Keyboard.SuperR
+    RGFW_up -> Keyboard.Up
+    RGFW_down -> Keyboard.Down
+    RGFW_left -> Keyboard.Left
+    RGFW_right -> Keyboard.Right
+    RGFW_insert -> Keyboard.Insert
+    RGFW_end -> Keyboard.End
+    RGFW_home -> Keyboard.Home
+    RGFW_pageUp -> Keyboard.PageUp
+    RGFW_pageDown -> Keyboard.PageDown
+    RGFW_numLock -> Keyboard.NumLock
+    RGFW_scrollLock -> Keyboard.ScrollLock
+    RGFW_keyLast -> Keyboard.KeyLast
+    else -> Keyboard.Unknown
+}
+
+private fun UInt.toMouse(): Mouse = when (this) {
+    RGFW_mouseLeft -> Mouse.MouseLeft
+    RGFW_mouseRight -> Mouse.MouseRight
+    RGFW_mouseMiddle -> Mouse.MouseMiddle
+    RGFW_mouseMisc1 -> Mouse.MouseMisc1
+    RGFW_mouseMisc2 -> Mouse.MouseMisc2
+    RGFW_mouseMisc3 -> Mouse.MouseMisc3
+    RGFW_mouseMisc4 -> Mouse.MouseMisc4
+    RGFW_mouseMisc5 -> Mouse.MouseMisc5
+    RGFW_mouseFinal -> Mouse.MouseFinal
+    else -> Mouse.Unknown
+}
+
+private fun UInt.toGamepad(): Gamepad = when (this) {
+    RGFW_gamepadNone -> Gamepad.GamepadNone
+    RGFW_gamepadA -> Gamepad.GamepadA
+    RGFW_gamepadB -> Gamepad.GamepadB
+    RGFW_gamepadY -> Gamepad.GamepadY
+    RGFW_gamepadX -> Gamepad.GamepadX
+    RGFW_gamepadStart -> Gamepad.GamepadStart
+    RGFW_gamepadSelect -> Gamepad.GamepadSelect
+    RGFW_gamepadHome -> Gamepad.GamepadHome
+    RGFW_gamepadUp -> Gamepad.GamepadUp
+    RGFW_gamepadDown -> Gamepad.GamepadDown
+    RGFW_gamepadLeft -> Gamepad.GamepadLeft
+    RGFW_gamepadRight -> Gamepad.GamepadRight
+    RGFW_gamepadL1 -> Gamepad.GamepadL1
+    RGFW_gamepadL2 -> Gamepad.GamepadL2
+    RGFW_gamepadR1 -> Gamepad.GamepadR1
+    RGFW_gamepadR2 -> Gamepad.GamepadR2
+    RGFW_gamepadL3 -> Gamepad.GamepadL3
+    RGFW_gamepadR3 -> Gamepad.GamepadR3
+    RGFW_gamepadFinal -> Gamepad.GamepadFinal
+    else -> Gamepad.Unknown
 }
