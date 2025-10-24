@@ -1,12 +1,19 @@
 package = rgfw
 headers = RGFW.h
+headerFilter = RGFW.h
 
+# Common options for all targets
 compilerOpts = -Ibuild/interopLib/rgfw -DRGFW_IMPLEMENTATION -DRGFW_OPENGL
 
+# Linux-specific compiler options
 compilerOpts.linux = -I/usr/include -I/usr/include/X11 -DRGFW_WAYLAND_X11
 
-staticLibraries = libwayland-protocols.a
-libraryPaths = build/interopLib/rgfw
+# MinGW (Windows) specific compiler options: force older WinAPI to avoid Win10-only MEM_EXTENDED_PARAMETER and friends
+compilerOpts.mingw = -I/usr/x86_64-w64-mingw32/include -DRGFW_SKIP_WIN10_FUNCS
+
+# Wayland-generated static lib is Linux-only
+staticLibraries.linux = libwayland-protocols.a
+libraryPaths.linux = build/interopLib/rgfw/wayland
 
 linkerOpts.linux = -lm -lX11 -lXrandr -lGL -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon -lEGL
 linkerOpts.mingw = -lopengl32 -lgdi32

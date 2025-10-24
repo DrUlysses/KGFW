@@ -14,8 +14,6 @@ plugins {
 }
 
 kotlin {
-    applyDefaultHierarchyTemplate()
-
     listOf(
         linuxX64(),
         mingwX64(),
@@ -41,9 +39,7 @@ val downloadRGFW = tasks.register<Download>("downloadRGFW") {
     src("https://github.com/ColleagueRiley/RGFW/archive/refs/tags/${libs.versions.rgfw.get()}.zip")
     dest(libDestination.file("rgfw.zip").asFile)
     overwrite(true)
-    // Always ensure the zip is present when needed
     outputs.file(libDestination.file("rgfw.zip"))
-    outputs.upToDateWhen { false }
 }
 
 val unpackTask = tasks.register<Copy>("unpackSdk") {
@@ -83,16 +79,17 @@ val unpackTask = tasks.register<Copy>("unpackSdk") {
 val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") {
     dependsOn(unpackTask)
 
-    val outputDir = libDestination.dir("rgfw").asFile
-    val markerFile = libDestination.file("wayland-protocols.completed").asFile
+    // Write Wayland artifacts into a dedicated subdirectory to avoid overlapping with inputs of other cinterop tasks
+    val waylandDir = libDestination.dir("rgfw").dir("wayland").asFile
+    val libFile = waylandDir.resolve("libwayland-protocols.a")
 
     doFirst {
-        if (!outputDir.exists()) {
-            outputDir.mkdirs()
+        if (!waylandDir.exists()) {
+            waylandDir.mkdirs()
         }
     }
 
-    workingDir(outputDir)
+    workingDir(waylandDir)
 
     // Generate all required Wayland protocol headers and compile them
     commandLine("sh", "-c", """
@@ -105,16 +102,22 @@ val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") 
         ar rcs libwayland-protocols.a xdg-shell.o xdg-decoration-unstable-v1.o
     """.trimIndent())
 
-    doLast {
-        markerFile.writeText("generated ${Date()}")
-    }
-
-    outputs.file(markerFile)
-    outputs.upToDateWhen { markerFile.exists() }
+    outputs.file(libFile)
 }
 
+// Ensure RGFW headers are unpacked and patched before any cinterop runs (all platforms)
 tasks.matching { it.name.startsWith("cinteropRgfw") }.configureEach {
+    dependsOn(unpackTask)
+}
+
+// Wayland protocol generation is Linux-only
+tasks.matching { it.name.startsWith("cinteropRgfw") && it.name.contains("LinuxX64") }.configureEach {
     dependsOn(generateWaylandProtocols)
+}
+
+// Ensure task ordering to avoid implicit dependency validation errors: even non-Linux cinterops must run after Wayland generation when both are in the graph
+tasks.matching { it.name == "cinteropRgfwMingwX64" }.configureEach {
+    mustRunAfter(generateWaylandProtocols)
 }
 
 publishing {
