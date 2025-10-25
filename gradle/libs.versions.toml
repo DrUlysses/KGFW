@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 download = "5.6.0"
 rgfw = "1.70"
 
