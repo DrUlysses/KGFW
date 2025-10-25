@@ -1,6 +1,6 @@
 package = rgfw
 headers = RGFW.h
-headerFilter = RGFW.h
+headerFilter = RGFW.h GL/* GL/** OpenGL/*
 
 # Common options for all targets
 compilerOpts = -Ibuild/interopLib/rgfw -DRGFW_IMPLEMENTATION -DRGFW_OPENGL
