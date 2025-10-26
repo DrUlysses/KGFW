@@ -3,11 +3,17 @@ on:
   release:
     types: [released, prereleased]
 jobs:
-  publish:
-    name: Release build and publish
+  build-native:
+    name: Build native artifacts
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        include:
+          - os: ubuntu-latest
+            target: linuxX64
+          - os: windows-latest
+            target: mingwX64
+          - os: macos-latest
+            target: macosX64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out code
@@ -21,18 +27,54 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libx11-dev libxrandr-dev libgl1-mesa-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+      - name: Build for ${{ matrix.target }}
+        run: ./gradlew :kgfw:${{ matrix.target }}MainKlibrary --no-configuration-cache
+        shell: bash
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: kgfw-${{ matrix.target }}
+          path: kgfw/build/classes/kotlin/${{ matrix.target }}/main/**
+          retention-days: 1
+
+  publish:
+    name: Publish to Maven Central
+    needs: build-native
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+      - name: Download all artifacts
+        uses: actions/download-artifact@v6
+        with:
+          path: downloaded-artifacts
+      - name: Restore Linux artifacts
+        run: |
+          mkdir -p kgfw/build/classes/kotlin/linuxX64/main
+          cp -r downloaded-artifacts/kgfw-linuxX64/* kgfw/build/classes/kotlin/linuxX64/main/ || true
+      - name: Restore Windows artifacts
+        run: |
+          mkdir -p kgfw/build/classes/kotlin/mingwX64/main
+          cp -r downloaded-artifacts/kgfw-mingwX64/* kgfw/build/classes/kotlin/mingwX64/main/ || true
+      - name: Restore macOS artifacts
+        run: |
+          mkdir -p kgfw/build/classes/kotlin/macosX64/main
+          cp -r downloaded-artifacts/kgfw-macosX64/* kgfw/build/classes/kotlin/macosX64/main/ || true
       - name: Publish to MavenCentral
         run: ./gradlew publishToMavenCentral --no-configuration-cache
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
-      - name: Build artifacts
-        if: matrix.os != 'ubuntu-latest'
-        run: ./gradlew build --no-configuration-cache
-        shell: bash
