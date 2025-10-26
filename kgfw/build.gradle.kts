@@ -1,3 +1,4 @@
+
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.kotlin.dsl.register
 import java.util.Date
@@ -87,22 +88,34 @@ val patchRGFWTask = tasks.register("patchRGFW") {
     doLast {
         if (rgfwHeader.exists()) {
             var content = rgfwHeader.readText()
+            var patched = false
 
-            // Add RGFW_NO_DPI define at the top if not already present
-            if (!content.contains("#define RGFW_NO_DPI")) {
-                // Insert after the first #ifndef RGFW_H or at the beginning
-                val insertPoint = content.indexOf("#ifndef RGFW_H")
-                if (insertPoint != -1) {
-                    val lineEnd = content.indexOf('\n', insertPoint) + 1
-                    content = content.take(lineEnd) +
-                            "#ifndef RGFW_NO_DPI\n#define RGFW_NO_DPI\n#endif\n\n" +
-                            content.substring(lineEnd)
-                } else {
-                    content = "#ifndef RGFW_NO_DPI\n#define RGFW_NO_DPI\n#endif\n\n$content"
+            // Comment out the shellscalingapi.h include line
+            if (content.contains("#include <shellscalingapi.h>")) {
+                content = content.replace(
+                    "#include <shellscalingapi.h>",
+                    "// #include <shellscalingapi.h> // Commented out for MinGW compatibility"
+                )
+                patched = true
+                println("Patched RGFW.h: commented out shellscalingapi.h include")
+            }
+
+            // Also wrap any DPI-related code that uses types from shellscalingapi.h
+            // Find and disable the DPI awareness functions
+            val dpiPattern = Regex("""(SetProcessDpiAwareness[^;]*;)""")
+            if (dpiPattern.containsMatchIn(content)) {
+                content = dpiPattern.replace(content) { matchResult ->
+                    "// ${matchResult.value} // Disabled for MinGW compatibility"
                 }
+                patched = true
+                println("Patched RGFW.h: disabled SetProcessDpiAwareness calls")
+            }
 
+            if (patched) {
                 rgfwHeader.writeText(content)
-                println("Patched RGFW.h to define RGFW_NO_DPI")
+                println("Successfully patched RGFW.h for MinGW compatibility")
+            } else {
+                println("Warning: shellscalingapi.h include not found in RGFW.h - may already be patched or version mismatch")
             }
 
             markerFile.asFile.writeText("patched ${Date()}")
