@@ -15,6 +15,7 @@ jobs:
           - os: macos-latest
             target: macosX64
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - name: Check out code
         uses: actions/checkout@v5
@@ -27,10 +28,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
       - name: Build for ${{ matrix.target }}
-        run: ./gradlew :kgfw:${{ matrix.target }}MainKlibrary --no-configuration-cache
+        run: ./gradlew :kgfw:compileKotlin${{ matrix.target }} --no-configuration-cache -Pkotlin.native.enabled.targets=${{ matrix.target }}
         shell: bash
+        timeout-minutes: 20
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
         with:
@@ -53,7 +55,7 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
       - name: Download all artifacts
         uses: actions/download-artifact@v6
         with:
