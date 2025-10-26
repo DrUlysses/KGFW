@@ -28,9 +28,9 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev libxi-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
       - name: Build for ${{ matrix.target }}
-        run: ./gradlew :kgfw:compileKotlin${{ matrix.target }} --no-configuration-cache -Pkotlin.native.enabled.targets=${{ matrix.target }}
+        run: ./gradlew :kgfw:compileKotlin${{ matrix.target }} --no-daemon --no-parallel --no-configuration-cache
         shell: bash
         timeout-minutes: 20
       - name: Upload artifacts
@@ -55,7 +55,7 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
+          sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev libxi-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
       - name: Download all artifacts
         uses: actions/download-artifact@v6
         with:
