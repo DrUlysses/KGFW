@@ -74,9 +74,45 @@ val unpackTask = tasks.register<Copy>("unpackSdk") {
     outputs.file(markerFile)
 }
 
+// Patch RGFW.h to disable DPI scaling for MinGW compatibility
+val patchRGFWTask = tasks.register("patchRGFW") {
+    dependsOn(unpackTask)
+
+    val rgfwHeader = libDestination.dir("rgfw").asFile.resolve("RGFW.h")
+    val markerFile = libDestination.file("patch.completed")
+
+    inputs.file(rgfwHeader)
+    outputs.file(markerFile)
+
+    doLast {
+        if (rgfwHeader.exists()) {
+            var content = rgfwHeader.readText()
+
+            // Add RGFW_NO_DPI define at the top if not already present
+            if (!content.contains("#define RGFW_NO_DPI")) {
+                // Insert after the first #ifndef RGFW_H or at the beginning
+                val insertPoint = content.indexOf("#ifndef RGFW_H")
+                if (insertPoint != -1) {
+                    val lineEnd = content.indexOf('\n', insertPoint) + 1
+                    content = content.take(lineEnd) +
+                            "#ifndef RGFW_NO_DPI\n#define RGFW_NO_DPI\n#endif\n\n" +
+                            content.substring(lineEnd)
+                } else {
+                    content = "#ifndef RGFW_NO_DPI\n#define RGFW_NO_DPI\n#endif\n\n$content"
+                }
+
+                rgfwHeader.writeText(content)
+                println("Patched RGFW.h to define RGFW_NO_DPI")
+            }
+
+            markerFile.asFile.writeText("patched ${Date()}")
+        }
+    }
+}
+
 // Trigger if you want to try wayland
 val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") {
-    dependsOn(unpackTask)
+    dependsOn(patchRGFWTask)
 
     // Write Wayland artifacts into a dedicated subdirectory to avoid overlapping with inputs of other cinterop tasks
     val waylandDir = libDestination.dir("rgfw").dir("wayland").asFile
@@ -104,9 +140,8 @@ val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") 
     outputs.file(libFile)
 }
 
-// Ensure RGFW headers are unpacked and patched before any cinterop runs (all platforms)
 tasks.matching { it.name.startsWith("cinteropRgfw") }.configureEach {
-    dependsOn(unpackTask)
+    dependsOn(patchRGFWTask)
 }
 
 // Wayland protocol generation is Linux-only
