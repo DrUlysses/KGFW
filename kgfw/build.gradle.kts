@@ -1,16 +1,15 @@
 import de.undercouch.gradle.tasks.download.Download
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.register
 import java.util.Date
 
 val artifact = "kgfw"
-group = "dr.ulysses"
+group = "io.github.drulysses"
 version = "1.0.0"
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.undercouch.download)
-    `maven-publish`
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
@@ -120,23 +119,41 @@ tasks.matching { it.name == "cinteropRgfwMingwX64" }.configureEach {
     mustRunAfter(generateWaylandProtocols)
 }
 
-publishing {
-    publications.withType<MavenPublication> {
-        groupId = project.group.toString()
-        version = project.version.toString()
-        artifactId = when (name) {
-            "kotlinMultiplatform" -> artifact
-            else -> "$artifact-$name"
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates(
+        groupId = group.toString(),
+        artifactId = artifact,
+        version = version.toString()
+    )
+
+    pom {
+        name = artifact
+        description = "Kotlin/Native bindings for GLFW"
+        url = "https://github.com/DrUlysses/KGFW"
+        inceptionYear = "2025"
+
+        developers {
+            developer {
+                id = "DrUlysses"
+                url = "https://github.com/DrUlysses"
+            }
         }
 
-        pom {
-            name = artifact
-            description = "Kotlin/Native bindings for GLFW"
-            url = "https://github.com/DrUlysses/kgfw"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
         }
 
-        repositories {
-            mavenLocal()
+        scm {
+            url = "https://github.com/DrUlysses/KGFW"
+            connection = "scm:git:git://github.com/DrUlysses/KGFW.git"
+            developerConnection = "scm:git:ssh://git@github.com:DrUlysses/KGFW.git"
         }
     }
 }
