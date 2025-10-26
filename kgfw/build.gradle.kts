@@ -17,7 +17,7 @@ kotlin {
     listOf(
         linuxX64(),
         mingwX64(),
-        macosX64()
+//        macosX64()
     ).forEach {
         it.compilations.getByName("main").cinterops {
             val rgfw by creating {

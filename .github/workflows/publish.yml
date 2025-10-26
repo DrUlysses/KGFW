@@ -12,8 +12,8 @@ jobs:
             target: linuxX64
           - os: windows-latest
             target: mingwX64
-          - os: macos-latest
-            target: macosX64
+#          - os: macos-latest
+#            target: macosX64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -44,36 +44,24 @@ jobs:
     name: Publish to Maven Central
     needs: build-native
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Check out code
         uses: actions/checkout@v5
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: 21
+
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib libx11-dev libxrandr-dev libgl1-mesa-dev libxcursor-dev libxi-dev wayland-protocols libwayland-dev libxkbcommon-dev libegl1-mesa-dev
-      - name: Download all artifacts
-        uses: actions/download-artifact@v6
-        with:
-          path: downloaded-artifacts
-      - name: Restore Linux artifacts
-        run: |
-          mkdir -p kgfw/build/classes/kotlin/linuxX64/main
-          cp -r downloaded-artifacts/kgfw-linuxX64/* kgfw/build/classes/kotlin/linuxX64/main/ || true
-      - name: Restore Windows artifacts
-        run: |
-          mkdir -p kgfw/build/classes/kotlin/mingwX64/main
-          cp -r downloaded-artifacts/kgfw-mingwX64/* kgfw/build/classes/kotlin/mingwX64/main/ || true
-      - name: Restore macOS artifacts
-        run: |
-          mkdir -p kgfw/build/classes/kotlin/macosX64/main
-          cp -r downloaded-artifacts/kgfw-macosX64/* kgfw/build/classes/kotlin/macosX64/main/ || true
+
       - name: Publish to MavenCentral
-        run: ./gradlew publishToMavenCentral --no-configuration-cache
+        run: ./gradlew publishToMavenCentral --no-configuration-cache --no-daemon
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
