@@ -2,7 +2,7 @@ package kgfw.image
 
 import kotlinx.cinterop.*
 import platform.opengl32.*
-import rgfw.*
+import rgfw.RGFW_window
 
 class ImageTexture(
     imageData: ByteArray,
