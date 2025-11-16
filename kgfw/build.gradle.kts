@@ -5,7 +5,7 @@ import java.util.Date
 
 val artifact = "kgfw"
 group = "io.github.drulysses"
-version = "1.0.0"
+version = "1.1.0"
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
