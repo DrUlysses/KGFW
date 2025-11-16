@@ -8,7 +8,7 @@ class ImageTexture(
     val width: Int,
     val height: Int
 ) {
-    val textureId: GLuint = memScoped {
+    val textureId = memScoped {
         val textures = allocArray<GLuintVar>(1)
         glGenTextures(1, textures)
         textures[0]

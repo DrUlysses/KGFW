@@ -1,24 +1,6 @@
 package kgfw.buttons
 
-import rgfw.RGFW_gamepadA
-import rgfw.RGFW_gamepadB
-import rgfw.RGFW_gamepadDown
-import rgfw.RGFW_gamepadFinal
-import rgfw.RGFW_gamepadHome
-import rgfw.RGFW_gamepadL1
-import rgfw.RGFW_gamepadL2
-import rgfw.RGFW_gamepadL3
-import rgfw.RGFW_gamepadLeft
-import rgfw.RGFW_gamepadNone
-import rgfw.RGFW_gamepadR1
-import rgfw.RGFW_gamepadR2
-import rgfw.RGFW_gamepadR3
-import rgfw.RGFW_gamepadRight
-import rgfw.RGFW_gamepadSelect
-import rgfw.RGFW_gamepadStart
-import rgfw.RGFW_gamepadUp
-import rgfw.RGFW_gamepadX
-import rgfw.RGFW_gamepadY
+import rgfw.*
 
 enum class Gamepad {
     // Gamepad

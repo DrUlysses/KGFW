@@ -1,5 +1,5 @@
 package = rgfw
-headers = RGFW.h
+headers = RGFW.h GL/gl.h GL/glext.h
 headerFilter = RGFW.h GL/* GL/** OpenGL/*
 
 # Common options for all targets

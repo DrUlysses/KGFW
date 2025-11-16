@@ -203,7 +203,6 @@ fun window(
         }
         block(windowPointer)
         RGFW_window_swapBuffers_OpenGL(windowPointer)
-        glFlush()
     }
     onDispose(windowPointer)
     RGFW_window_close(windowPointer)
