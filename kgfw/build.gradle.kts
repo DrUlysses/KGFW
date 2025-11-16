@@ -1,5 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.kotlin.dsl.register
+import org.jetbrains.kotlin.konan.target.HostManager.Companion.hostOs
 import java.util.Date
 
 val artifact = "kgfw"
@@ -179,6 +180,10 @@ val generateWaylandProtocols = tasks.register<Exec>("generateWaylandProtocols") 
         gcc -c -fPIC xdg-decoration-unstable-v1.c -o xdg-decoration-unstable-v1.o $(pkg-config --cflags wayland-client) &&
         ar rcs libwayland-protocols.a xdg-shell.o xdg-decoration-unstable-v1.o
     """.trimIndent())
+
+    onlyIf {
+        hostOs() == "linux"
+    }
 
     outputs.file(libFile)
 }

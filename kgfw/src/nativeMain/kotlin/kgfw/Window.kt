@@ -1,12 +1,7 @@
 package kgfw
 
-import kgfw.buttons.toGamepad
-import kgfw.buttons.toKeyboard
-import kgfw.buttons.toMouse
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.cValue
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.pointed
+import kgfw.buttons.*
+import kotlinx.cinterop.*
 import rgfw.*
 
 fun window(
