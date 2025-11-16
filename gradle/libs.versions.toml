@@ -4,8 +4,6 @@ download = "5.6.0"
 rgfw = "1.70"
 vanniktechMavenPublish = "0.34.0"
 
-[libraries]
-
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 undercouch-download = { id = "de.undercouch.download", version.ref = "download" }

@@ -1,4 +1,3 @@
-
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.kotlin.dsl.register
 import java.util.Date
@@ -22,6 +21,10 @@ kotlin {
         it.compilations.getByName("main").cinterops {
             val rgfw by creating {
                 includeDirs.allHeaders(layout.buildDirectory.dir("interopLib").get().dir("rgfw"))
+            }
+            // stb_image single-header library for image decoding (PNG/JPG/etc.)
+            val stb_image by creating {
+                includeDirs.allHeaders(layout.buildDirectory.dir("interopLib").get().dir("stb_image"))
             }
         }
     }
@@ -120,6 +123,33 @@ val patchRGFWTask = tasks.register("patchRGFW") {
 
             markerFile.asFile.writeText("patched ${Date()}")
         }
+    }
+}
+
+val downloadStbImage = tasks.register<Download>("downloadStbImage") {
+    val stbDir = libDestination.dir("stb_image")
+    stbDir.asFile.mkdirs()
+    src("https://raw.githubusercontent.com/nothings/stb/master/stb_image.h")
+    dest(stbDir.file("stb_image.h").asFile)
+    overwrite(true)
+    outputs.file(stbDir.file("stb_image.h"))
+}
+
+gradle.taskGraph.whenReady {
+    tasks.matching { it.name.startsWith("cinteropStb_image") }.configureEach {
+        dependsOn(downloadStbImage)
+    }
+    tasks.matching { it.name.startsWith("cinteropRgfw") }.configureEach {
+        dependsOn(patchRGFWTask)
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.CInteropProcess::class.java).configureEach {
+    if (settings.name == "stb_image") {
+        dependsOn(downloadStbImage)
+    }
+    if (settings.name == "rgfw") {
+        dependsOn(patchRGFWTask)
     }
 }
 

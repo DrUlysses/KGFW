@@ -1,0 +1,9 @@
+package = stb_image
+headers = stb_image.h
+headerFilter = stb_image.h
+
+# Make the single-header library provide implementation
+compilerOpts = -Ibuild/interopLib/stb_image -DSTB_IMAGE_IMPLEMENTATION
+
+# Link libm on Linux (some math functions are used inside stb_image)
+linkerOpts.linux = -lm

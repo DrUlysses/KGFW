@@ -1,7 +1,17 @@
+import examples.texture
+import examples.triangle
 import kgfw.Event
+import kgfw.buttons.Keyboard
 import kgfw.window
-import rgfw.*
+import kotlinx.cinterop.CPointer
+import rgfw.RGFW_window
+import rgfw.RGFW_window_setName
 import kotlin.time.Clock
+
+enum class Example {
+    Triangle,
+    Texture
+}
 
 fun main() {
     val startTime = Clock.System.now().toEpochMilliseconds()
@@ -9,9 +19,12 @@ fun main() {
     var mouseY = 0
     val windowWidth = 800
     val windowHeight = 600
+    var currentExample = Example.Triangle
+    var window: CPointer<RGFW_window>? = null
+    var onDispose: (windowPointer: CPointer<RGFW_window>) -> Unit = {}
 
     window(
-        name = "Example",
+        name = "Example ${currentExample.name}",
         width = windowWidth,
         height = windowHeight,
         onEvent = { event ->
@@ -35,6 +48,25 @@ fun main() {
 
                 is Event.KeyPressed -> {
                     println("Key ${event.button} pressed")
+                    when (event.button) {
+                        Keyboard.F1 if currentExample != Example.Triangle -> {
+                            window?.let {
+                                onDispose(it)
+                            }
+                            currentExample = Example.Triangle
+                            RGFW_window_setName(window, "Example ${currentExample.name}")
+                        }
+
+                        Keyboard.F2 if currentExample != Example.Texture -> {
+                            window?.let {
+                                onDispose(it)
+                            }
+                            currentExample = Example.Texture
+                            RGFW_window_setName(window, "Example ${currentExample.name}")
+                        }
+
+                        else -> {}
+                    }
                 }
 
                 is Event.KeyReleased -> {
@@ -43,34 +75,26 @@ fun main() {
 
                 else -> {}
             }
+        },
+        onDispose = onDispose
+    ) { windowPointer ->
+        window = windowPointer
+        when (currentExample) {
+            Example.Triangle -> {
+                onDispose = {}
+                triangle(
+                    startTime = startTime,
+                    mouseX = mouseX,
+                    mouseY = mouseY,
+                    windowWidth = windowWidth,
+                    windowHeight = windowHeight
+                )
+            }
+            Example.Texture -> {
+                onDispose = texture(
+                    windowPointer = windowPointer
+                )
+            }
         }
-    ) {
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-        val elapsedSeconds = (currentTime - startTime) / 1000.0f
-        val rotationAngle = elapsedSeconds * 50.0f // 50 degrees per second
-
-        // Convert screen coordinates to OpenGL coordinates (-1 to 1)
-        val glX = (mouseX.toFloat() / windowWidth.toFloat()) * 2.0f - 1.0f
-        val glY = -((mouseY.toFloat() / windowHeight.toFloat()) * 2.0f - 1.0f) // Flip Y axis
-
-        glClearColor(red = 1f, green = 1f, blue = 1f, alpha = 1f)
-        glClear(mask = (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT).toUInt())
-
-        glLoadIdentity()
-        glTranslatef(x = glX, y = glY, z = 0.0f)
-        glRotatef(angle = rotationAngle, x = 0.0f, y = 0.0f, z = 1.0f)
-
-        glBegin(mode = GL_TRIANGLES.toUInt())
-
-        glColor3f(red = 1.0f, green = 0.0f, blue = 0.0f)
-        glVertex2f(x = -0.5f, y = -0.5f)
-
-        glColor3f(red = 0.0f, green = 1.0f, blue = 0.0f)
-        glVertex2f(x = 0.5f, y = -0.5f)
-
-        glColor3f(red = 0.0f, green = 0.0f, blue = 1.0f)
-        glVertex2f(x = 0.0f, y = 0.5f)
-
-        glEnd()
     }
 }
