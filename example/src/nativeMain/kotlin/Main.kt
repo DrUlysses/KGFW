@@ -1,3 +1,4 @@
+import examples.dragAndDrop
 import examples.texture
 import examples.triangle
 import kgfw.Event
@@ -10,7 +11,8 @@ import kotlin.time.Clock
 
 enum class Example {
     Triangle,
-    Texture
+    Texture,
+    DragAndDrop,
 }
 
 fun main() {
@@ -65,12 +67,31 @@ fun main() {
                             RGFW_window_setName(window, "Example ${currentExample.name}")
                         }
 
+                        Keyboard.F3 if currentExample != Example.DragAndDrop -> {
+                            window?.let {
+                                onDispose(it)
+                            }
+                            currentExample = Example.DragAndDrop
+                            RGFW_window_setName(window, "Example ${currentExample.name}")
+                        }
+
                         else -> {}
                     }
                 }
 
                 is Event.KeyReleased -> {
                     println("Key ${event.button} released")
+                }
+
+                is Event.DNDInit -> {
+                    println("DND init at (${event.x}, ${event.y})")
+                }
+
+                is Event.DND -> {
+                    println("Dropped ${event.files.size} file(s) at (${event.x}, ${event.y})")
+                    event.files.forEachIndexed { index, file ->
+                        println("  [$index] $file")
+                    }
                 }
 
                 else -> {}
@@ -94,6 +115,10 @@ fun main() {
                 onDispose = texture(
                     windowPointer = windowPointer
                 )
+            }
+            Example.DragAndDrop -> {
+                onDispose = {}
+                dragAndDrop(windowPointer)
             }
         }
     }

@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.2.21"
 download = "5.6.0"
-rgfw = "1.70"
+rgfw = "1.8.1"
 vanniktechMavenPublish = "0.34.0"
 
 [plugins]

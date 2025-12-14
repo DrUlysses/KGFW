@@ -2,8 +2,7 @@ package examples
 
 import kgfw.image.ImageTexture
 import kgfw.image.readImageRGBA
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.pointed
+import kotlinx.cinterop.*
 import platform.posix.F_OK
 import platform.posix.access
 import rgfw.*
@@ -36,8 +35,12 @@ fun texture(
             )
         } else {
             // Fallback: generated checkerboard
-            val width = windowPointer.pointed.r.w
-            val height = windowPointer.pointed.r.h
+            val (width, height) = memScoped {
+                val wVar = alloc<IntVar>()
+                val hVar = alloc<IntVar>()
+                RGFW_window_getSize(windowPointer, wVar.ptr, hVar.ptr)
+                Pair(wVar.value, hVar.value)
+            }
             ImageTexture(
                 imageData = generateCheckerboardRgba(
                     width = width,
@@ -56,7 +59,13 @@ fun texture(
         glClear((GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT).toUInt())
 
         // Draw the texture at the current mouse position (top-left anchored)
-        texture.drawScaled(windowPointer, 0, 0, windowPointer.pointed.r.h, windowPointer.pointed.r.w)
+        val (w, h) = memScoped {
+            val wVar = alloc<IntVar>()
+            val hVar = alloc<IntVar>()
+            RGFW_window_getSize(windowPointer, wVar.ptr, hVar.ptr)
+            Pair(wVar.value, hVar.value)
+        }
+        texture.drawScaled(windowPointer, 0, 0, h, w)
     }
 
     return {

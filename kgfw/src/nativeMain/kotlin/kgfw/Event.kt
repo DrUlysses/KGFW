@@ -1,6 +1,5 @@
 package kgfw
 
-import kgfw.buttons.Gamepad
 import kgfw.buttons.Keyboard
 import kgfw.buttons.Mouse
 
@@ -26,13 +25,6 @@ sealed interface Event {
     data object WindowMinimized : Event
     data object WindowRestored : Event
     data class ScaleUpdated(val scaleX: Float, val scaleY: Float) : Event
-
-    // Gamepad
-    data class GamepadConnected(val gamepad: Int) : Event
-    data class GamepadDisconnected(val gamepad: Int) : Event
-    data class GamepadButtonPressed(val gamepad: Int, val button: Gamepad) : Event
-    data class GamepadButtonReleased(val gamepad: Int, val button: Gamepad) : Event
-    data class GamepadAxisMove(val gamepad: Int, val whichAxis: Int, val axesCount: Int) : Event
 
     // Drag and drop
     data class DNDInit(val x: Int, val y: Int) : Event
