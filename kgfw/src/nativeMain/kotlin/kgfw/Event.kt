@@ -12,6 +12,7 @@ sealed interface Event {
     data class MouseButtonPressed(val x: Int, val y: Int, val button: Mouse) : Event
     data class MouseButtonReleased(val x: Int, val y: Int, val button: Mouse) : Event
     data class MousePosChanged(val x: Int, val y: Int) : Event
+    data class MouseScroll(val x: Float, val y: Float) : Event
     data object MouseEnter : Event
     data object MouseLeave : Event
 

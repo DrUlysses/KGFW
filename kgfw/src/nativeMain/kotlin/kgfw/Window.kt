@@ -65,11 +65,19 @@ fun window(
                 }
 
                 RGFW_mousePosChanged -> {
-                    val (x, y) = getMousePos(windowPointer)
                     onEvent(
                         Event.MousePosChanged(
-                            x = x,
-                            y = y
+                            x = event.mouse.x,
+                            y = event.mouse.y
+                        )
+                    )
+                }
+
+                RGFW_mouseScroll -> {
+                    onEvent(
+                        Event.MouseScroll(
+                            x = event.scroll.x,
+                            y = event.scroll.y
                         )
                     )
                 }
