@@ -20,7 +20,9 @@ var texture: ImageTexture? = null
  *   (width * height * 4) first (e.g., via stb_image or another decoder), then pass it to ImageTexture.
  */
 fun texture(
-    windowPointer: CPointer<RGFW_window>
+    windowPointer: CPointer<RGFW_window>,
+    windowWidth: Int,
+    windowHeight: Int
 ): (windowPointer: CPointer<RGFW_window>) -> Unit {
     // Prepare the texture
     if (texture == null) {
@@ -35,20 +37,14 @@ fun texture(
             )
         } else {
             // Fallback: generated checkerboard
-            val (width, height) = memScoped {
-                val wVar = alloc<IntVar>()
-                val hVar = alloc<IntVar>()
-                RGFW_window_getSize(windowPointer, wVar.ptr, hVar.ptr)
-                Pair(wVar.value, hVar.value)
-            }
             ImageTexture(
                 imageData = generateCheckerboardRgba(
-                    width = width,
-                    height = height,
+                    width = windowWidth,
+                    height = windowHeight,
                     cellSize = 16
                 ),
-                width = width,
-                height = height
+                width = windowWidth,
+                height = windowHeight
             )
         }
     }

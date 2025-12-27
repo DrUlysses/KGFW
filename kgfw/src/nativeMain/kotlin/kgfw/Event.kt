@@ -20,10 +20,10 @@ sealed interface Event {
     data object FocusOut : Event
     data object WindowRefresh : Event
     data object WindowMoved : Event
-    data object WindowResized : Event
-    data object WindowMaximized : Event
+    data class WindowResized(val width: Int, val height: Int) : Event
+    data class WindowMaximized(val width: Int, val height: Int) : Event
     data object WindowMinimized : Event
-    data object WindowRestored : Event
+    data class WindowRestored(val width: Int, val height: Int) : Event
     data class ScaleUpdated(val scaleX: Float, val scaleY: Float) : Event
 
     // Drag and drop

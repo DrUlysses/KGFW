@@ -5,8 +5,10 @@ import kgfw.Event
 import kgfw.buttons.Keyboard
 import kgfw.window
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.pointed
 import rgfw.RGFW_window
 import rgfw.RGFW_window_setName
+import kotlin.math.roundToInt
 import kotlin.time.Clock
 
 enum class Example {
@@ -19,8 +21,10 @@ fun main() {
     val startTime = Clock.System.now().toEpochMilliseconds()
     var mouseX = 0
     var mouseY = 0
-    val windowWidth = 800
-    val windowHeight = 600
+    var windowWidth = 800
+    var windowHeight = 600
+    var scaleX = 1.0f
+    var scaleY = 1.0f
     var currentExample = Example.Triangle
     var window: CPointer<RGFW_window>? = null
     var onDispose: (windowPointer: CPointer<RGFW_window>) -> Unit = {}
@@ -94,6 +98,26 @@ fun main() {
                     }
                 }
 
+                is Event.WindowResized-> {
+                    windowWidth = event.width
+                    windowHeight = event.height
+                }
+
+                is Event.ScaleUpdated -> {
+                    scaleX = event.scaleX
+                    scaleY = event.scaleY
+                }
+
+                is Event.WindowMaximized -> {
+                    windowWidth = event.width
+                    windowHeight = event.height
+                }
+
+                is Event.WindowRestored -> {
+                    windowWidth = event.width
+                    windowHeight = event.height
+                }
+
                 else -> {}
             }
         },
@@ -108,12 +132,16 @@ fun main() {
                     mouseX = mouseX,
                     mouseY = mouseY,
                     windowWidth = windowWidth,
-                    windowHeight = windowHeight
+                    windowHeight = windowHeight,
+                    framebufferWidth = (windowWidth * scaleX).roundToInt(),
+                    framebufferHeight = (windowHeight * scaleY).roundToInt()
                 )
             }
             Example.Texture -> {
                 onDispose = texture(
-                    windowPointer = windowPointer
+                    windowPointer = windowPointer,
+                    windowWidth = windowWidth,
+                    windowHeight = windowHeight
                 )
             }
             Example.DragAndDrop -> {
