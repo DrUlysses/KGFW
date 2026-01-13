@@ -17,6 +17,21 @@ kotlin {
         }
     }
 
+    mingwX64 {
+        binaries {
+            executable {
+                entryPoint = "main"
+                linkerOpts(
+                    "-lopengl32",
+                    "-lgdi32",
+                    "-luser32",
+                    "-lshell32",
+                    "-lwinmm"
+                )
+            }
+        }
+    }
+
     dependencies {
         implementation(project(":kgfw"))
     }

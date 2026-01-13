@@ -121,7 +121,7 @@ fun main() {
                 else -> {}
             }
         },
-        onDispose = onDispose
+        onDispose = { onDispose(it) }
     ) { windowPointer ->
         window = windowPointer
         when (currentExample) {

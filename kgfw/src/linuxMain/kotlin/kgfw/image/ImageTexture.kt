@@ -18,6 +18,8 @@ class ImageTexture(
         glBindTexture(target = GL_TEXTURE_2D.toUInt(), texture = textureId)
         glTexParameteri(target = GL_TEXTURE_2D.toUInt(), pname = GL_TEXTURE_MIN_FILTER.toUInt(), param = GL_NEAREST)
         glTexParameteri(target = GL_TEXTURE_2D.toUInt(), pname = GL_TEXTURE_MAG_FILTER.toUInt(), param = GL_NEAREST)
+        glTexParameteri(target = GL_TEXTURE_2D.toUInt(), pname = GL_TEXTURE_WRAP_S.toUInt(), param = GL_CLAMP_TO_EDGE)
+        glTexParameteri(target = GL_TEXTURE_2D.toUInt(), pname = GL_TEXTURE_WRAP_T.toUInt(), param = GL_CLAMP_TO_EDGE)
 
         // Ensure byte-aligned rows (no padding) for RGBA byte arrays
         glPixelStorei(pname = GL_UNPACK_ALIGNMENT.toUInt(), param = 1)
@@ -35,6 +37,7 @@ class ImageTexture(
                 pixels = pinnedData.addressOf(index = 0)
             )
         }
+        glBindTexture(GL_TEXTURE_2D.toUInt(), 0u)
     }
 
     /**
@@ -105,6 +108,10 @@ class ImageTexture(
         glMatrixMode(GL_MODELVIEW.toUInt())
         glPushMatrix()
         glLoadIdentity()
+
+        glDisable(GL_LIGHTING.toUInt())
+        glDisable(GL_DEPTH_TEST.toUInt())
+        glDisable(GL_CULL_FACE.toUInt())
 
         glEnable(cap = GL_TEXTURE_2D.toUInt())
         glEnable(cap = GL_BLEND.toUInt())

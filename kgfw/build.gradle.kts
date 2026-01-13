@@ -5,7 +5,7 @@ import java.util.Date
 
 val artifact = "kgfw"
 group = "io.github.drulysses"
-version = "1.4.0"
+version = libs.versions.kgfw.get()
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -95,24 +95,23 @@ val patchRGFWTask = tasks.register("patchRGFW") {
             var patched = false
 
             // Comment out the shellscalingapi.h include line
-            if (content.contains("#include <shellscalingapi.h>")) {
-                content = content.replace(
-                    "#include <shellscalingapi.h>",
-                    "// #include <shellscalingapi.h> // Commented out for MinGW compatibility"
-                )
+            // Use regex to handle potential variations in spacing or case
+            val includePattern = Regex("""#include\s+<shellscalingapi\.h>""", RegexOption.IGNORE_CASE)
+            if (includePattern.containsMatchIn(content)) {
+                content = includePattern.replace(content, "// #include <shellscalingapi.h> // Commented out for MinGW compatibility")
                 patched = true
                 println("Patched RGFW.h: commented out shellscalingapi.h include")
             }
 
             // Also wrap any DPI-related code that uses types from shellscalingapi.h
-            // Find and disable the DPI awareness functions
-            val dpiPattern = Regex("""(SetProcessDpiAwareness[^;]*;)""")
+            // Find and disable the DPI awareness functions (some versions might use SetProcessDpiAwareness)
+            val dpiPattern = Regex("""(SetProcessDpiAwareness(Context)?|SetProcessDPIAware)\s*\([^;]*\)\s*;""", RegexOption.IGNORE_CASE)
             if (dpiPattern.containsMatchIn(content)) {
                 content = dpiPattern.replace(content) { matchResult ->
                     "// ${matchResult.value} // Disabled for MinGW compatibility"
                 }
                 patched = true
-                println("Patched RGFW.h: disabled SetProcessDpiAwareness calls")
+                println("Patched RGFW.h: disabled DPI awareness calls")
             }
 
             if (patched) {

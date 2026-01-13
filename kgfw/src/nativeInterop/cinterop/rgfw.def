@@ -3,18 +3,18 @@ headers = RGFW.h GL/gl.h GL/glext.h
 headerFilter = RGFW.h GL/* GL/** OpenGL/*
 
 # Common options for all targets
-compilerOpts = -Ibuild/interopLib/rgfw -DRGFW_IMPLEMENTATION -DRGFW_OPENGL -DGL_GLEXT_PROTOTYPES
+compilerOpts = -DRGFW_IMPLEMENTATION -DRGFW_OPENGL -DGL_GLEXT_PROTOTYPES
 
 # Linux-specific compiler options
 compilerOpts.linux = -I/usr/include -I/usr/include/X11 -DRGFW_WAYLAND_X11
 
 # MinGW (Windows) specific compiler options: disable Win8+ DPI scaling and Win10+ features
-compilerOpts.mingw = -I/usr/x86_64-w64-mingw32/include -DRGFW_NO_DPI -DRGFW_SKIP_WIN10_FUNCS
+compilerOpts.mingw = -DRGFW_NO_DPI -DRGFW_SKIP_WIN10_FUNCS
 
 # Wayland-generated static lib is Linux-only
 staticLibraries.linux = libwayland-protocols.a
 libraryPaths.linux = build/interopLib/rgfw/wayland
 
 linkerOpts.linux = -lm -lX11 -lXrandr -lGL -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon -lEGL
-linkerOpts.mingw = -lopengl32 -lgdi32 -lshell32
+linkerOpts.mingw = -lopengl32 -lgdi32 -luser32 -lshell32 -lwinmm
 linkerOpts.osx = -framework Cocoa -framework OpenGL
